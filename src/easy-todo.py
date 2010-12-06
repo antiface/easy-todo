@@ -7,55 +7,53 @@ todo_file = "/Users/tomwans/Dropbox/Homeworkers/todo"
 def main():
     cmd = ""
     if (len(sys.argv) > 1):
-        searcher = re.compile(".*"+' '.join(sys.argv[2:])+".*\n")
         cmd = sys.argv[1]
+
+    # load todo-list into python list
+    todo_list = [x.rstrip() for x in open(todo_file, mode='r').readlines()]
+
     if (cmd == "did"):
-        did_task()
+        todo_list = did_task(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*"))
     elif (cmd == "for"):
-        search_tasks()
+        [print(x) for x in search_tasks(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*"))]
     elif (cmd == ""):
-        list_tasks()
+        [print(x) for x in todo_list]
     else:
-        add_task(' '.join(sys.argv[1:]))
+        add_task(todo_list, ' '.join(sys.argv[1:]))
 
-def add_task(task_str):
-    with open(todo_file, mode="a") as todo:
-        todo.write(task_str) + '\n')
+    # save to file
+    with open(todo_file, mode='w') as f:
+        f.write('\n'.join(todo_list))
 
-def list_tasks():
-    print(open(todo_file, mode='r').read().rstrip())
+def add_task(tlist, task_str):
+    tlist.append(task_str.rstrip())
 
-def did_task():
+def did_task(tlist, task_desc):
     possibles = []
     okays = []
-    with open(todo_file, mode='r') as todo_read:
-        for line in todo_read:
-            if searcher.search(line) != None:
-                possibles.append(line)
-            else:
-                if line != "":
-                    okays.append(line)
-        if (len(possibles) > 1):
-            count = 0
-            for p in possibles:
-                count += 1
-                print(count, p.rstrip())
+    for line in tlist:
+        if task_desc.search(line) != None:
+            possibles.append(line)
+        else:
+            okays.append(line)
+    
+    if (len(possibles) > 1):
+        count = 0
+        for p in possibles:
+            count += 1
+            print(count, p)
+        to_kill = int(input('? '))
+        while to_kill > count or to_kill == 0:
             to_kill = int(input('? '))
-            if to_kill <= count:
-                del possibles[to_kill - 1]
-            else:
-                print("kill what?")
-            okays.extend(possibles)
-        elif (len(possibles) == 0):
-            print("> error! nothing found")
-        open(todo_file, mode='w').write('\n'.join(okays))
+        del possibles[to_kill - 1]
+        okays.extend(possibles)
+    elif (len(possibles) == 0):
+        print("> error! nothing found")
+    
+    return okays
 
-
-def search_tasks():
-    with open(todo_file, mode='r') as todo_read:
-        for found in searcher.findall(todo_read.read()):
-            print(found.rstrip())
-
+def search_tasks(tlist, task_desc):
+    return [x for x in tlist if task_desc.search(x) != None]
 
 if __name__ == "__main__":
     main()
