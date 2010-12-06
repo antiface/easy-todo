@@ -2,7 +2,7 @@
 
 import sys, getopt, re
 
-todo_file = "/Users/tomwans/Dropbox/Homeworkers/todo"
+todo_file = " YOUR FILE HERE !"
 
 def main():
     cmd = ""
