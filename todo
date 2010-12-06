@@ -13,9 +13,9 @@ def main():
     todo_list = [x.rstrip() for x in open(todo_file, mode='r').readlines()]
 
     if (cmd == "did"):
-        did_task(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*\n"))
+        todo_list = did_task(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*"))
     elif (cmd == "for"):
-        print(search_tasks(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*\n")))
+        [print(x) for x in search_tasks(todo_list, re.compile(".*"+' '.join(sys.argv[2:])+".*"))]
     elif (cmd == ""):
         [print(x) for x in todo_list]
     else:
@@ -23,7 +23,6 @@ def main():
 
     # save to file
     with open(todo_file, mode='w') as f:
-        print(todo_list)
         f.write('\n'.join(todo_list))
 
 def add_task(tlist, task_str):
@@ -37,21 +36,21 @@ def did_task(tlist, task_desc):
             possibles.append(line)
         else:
             okays.append(line)
-
-    print(okays, possibles)
-
+    
     if (len(possibles) > 1):
         count = 0
         for p in possibles:
             count += 1
             print(count, p)
         to_kill = int(input('? '))
-        while to_kill > count or count == 0:
+        while to_kill > count or to_kill == 0:
             to_kill = int(input('? '))
         del possibles[to_kill - 1]
         okays.extend(possibles)
     elif (len(possibles) == 0):
         print("> error! nothing found")
+    
+    return okays
 
 def search_tasks(tlist, task_desc):
     return [x for x in tlist if task_desc.search(x) != None]
